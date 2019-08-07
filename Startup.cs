@@ -6,6 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Pieshop.Interfaces;
 using Pieshop.Models;
 using Pieshop.Repositories;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Pieshop
 {
@@ -27,6 +29,8 @@ namespace Pieshop
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
                 );
+
+           
 
             services.AddTransient<IPieRepository, PieRepository>();
             services.AddTransient<IFeedbackRepository, FeedbackRepository>();

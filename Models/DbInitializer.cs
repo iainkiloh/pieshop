@@ -39,6 +39,16 @@ namespace Pieshop.Models
             {
                 var roleResult = roleManager.CreateAsync(new IdentityRole("Admin")).Result;
             }
+            var customerRoleCheck = roleManager.RoleExistsAsync("Customer").Result;
+            if (!customerRoleCheck)
+            {
+                var customerRoleResult = roleManager.CreateAsync(new IdentityRole("Customer")).Result;
+            }
+            var staffRoleCheck = roleManager.RoleExistsAsync("Staff").Result;
+            if (!staffRoleCheck)
+            {
+                var staffRoleResult = roleManager.CreateAsync(new IdentityRole("Staff")).Result;
+            }
         }
 
         public static void SeedDefaultAdminUser(UserManager<ApplicationUser> userManager)

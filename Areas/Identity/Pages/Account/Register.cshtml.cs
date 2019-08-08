@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Text.Encodings.Web;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using Pieshop.Models;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Encodings.Web;
+using System.Threading.Tasks;
 
 namespace Pieshop.Areas.Identity.Pages.Account
 {
@@ -88,6 +87,17 @@ namespace Pieshop.Areas.Identity.Pages.Account
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
+                    //create auto role 'Customer' for newly registered user
+                    ApplicationUser addedUser = await _userManager.FindByEmailAsync(user.Email);
+                    if(addedUser != null)
+                    {
+                        var customerRoleResult = await _userManager.AddToRoleAsync(addedUser, "Customer");
+                        if (!customerRoleResult.Succeeded)
+                        {
+                            _logger.LogInformation("Unable to add 'Customer role' for new User Registration.");
+                        }
+                    }
+                    
                     _logger.LogInformation("User created a new account with password.");
 
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);

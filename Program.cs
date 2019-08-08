@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Pieshop.Models;
 
@@ -15,7 +16,11 @@ namespace Pieshop
                 try
                 {
                     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
                     DbInitializer.Seed(dbContext);
+                    DbInitializer.SeedAdminRole(roleManager);
+                    DbInitializer.SeedDefaultAdminUser(userManager);
                 }
                 catch
                 {

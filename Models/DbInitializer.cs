@@ -1,10 +1,13 @@
-﻿using System.Linq;
+﻿using Microsoft.AspNetCore.Identity;
+using System.Linq;
 
 namespace Pieshop.Models
 {
     public static class DbInitializer
         {
-            public static void Seed(AppDbContext context)
+
+
+        public static void Seed(AppDbContext context)
             {
                 if (!context.Pies.Any())
                 {
@@ -25,8 +28,32 @@ namespace Pieshop.Models
 
                     context.SaveChanges();
                 }
+
+            }
+
+
+        public static void SeedAdminRole(RoleManager<IdentityRole> roleManager)
+        {
+            var roleCheck = roleManager.RoleExistsAsync("Admin").Result;
+            if(!roleCheck)
+            {
+                var roleResult = roleManager.CreateAsync(new IdentityRole("Admin")).Result;
             }
         }
 
-   
+        public static void SeedDefaultAdminUser(UserManager<ApplicationUser> userManager)
+        {
+            ApplicationUser user = userManager.FindByEmailAsync("theboss@gmail.com").Result;
+            if (user != null)
+            {
+                if (!userManager.IsInRoleAsync(user, "Admin").Result)
+                {
+                    var result = userManager.AddToRoleAsync(user, "Admin").Result;
+                }
+            }
+        }
+
+
+    }
+
 }

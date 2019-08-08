@@ -8,6 +8,7 @@ using Pieshop.Models;
 using Pieshop.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Pieshop.ViewServices;
 
 namespace Pieshop
 {
@@ -30,8 +31,7 @@ namespace Pieshop
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
                 );
 
-           
-
+            services.AddSingleton<ProfileOptionsService, ProfileOptionsService>();
             services.AddTransient<IPieRepository, PieRepository>();
             services.AddTransient<IFeedbackRepository, FeedbackRepository>();
             services.AddMvc();

@@ -21,16 +21,17 @@ namespace Pieshop
                     DbInitializer.Seed(dbContext);
                     DbInitializer.SeedAdminRole(roleManager);
                     DbInitializer.SeedDefaultAdminUser(userManager);
+
+                    //if db initialization setup has succeeded we run the app
+                    host.Run();
                 }
                 catch
                 {
-                    //log any exceptions, app wont start if failure happens here
-                    
+                    //TODO - log any exceptions, app wont start if failure happens here
+
+                     
                 }
             }
-
-            //if db initialization setup has succeeded we run the app
-            host.Run();
 
         }
 

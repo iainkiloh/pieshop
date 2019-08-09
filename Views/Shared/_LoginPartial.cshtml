@@ -9,6 +9,12 @@
             <li>
                 <a asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @UserManager.GetUserName(User)!</a>
             </li>
+            @if(User.IsInRole("Admin"))
+            {
+            <li>
+                <a asp-area="Admin" asp-controller="/Admin/UserManagement" title="ManageUsers">Admin</a>
+            </li>
+            }
             <li>
                 <button type="submit" class="btn btn-link navbar-btn navbar-link">Logout</button>
             </li>

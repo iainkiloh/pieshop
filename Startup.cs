@@ -6,8 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Pieshop.Interfaces;
 using Pieshop.Models;
 using Pieshop.Repositories;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Pieshop.ViewServices;
 
 namespace Pieshop

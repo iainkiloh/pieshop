@@ -1,12 +1,18 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using AutoMapper;
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Pieshop.FluentValidators;
 using Pieshop.Interfaces;
+using Pieshop.Mapping;
 using Pieshop.Models;
 using Pieshop.Repositories;
+using Pieshop.ViewModels;
 using Pieshop.ViewServices;
+using System.Globalization;
 
 namespace Pieshop
 {
@@ -17,6 +23,11 @@ namespace Pieshop
 
         public Startup(IConfiguration configuration)
         {
+            //uk specific culture settings for this app
+            var cultureInfo = new CultureInfo("en-GB");
+            CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+            CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
+
             Configuration = configuration;
         }
 
@@ -29,10 +40,25 @@ namespace Pieshop
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
                 );
 
+
+            // Auto Mapper Configurations
+            //not 100% sure about this setup
+            //IMHO mapping should be scoped per request and only for the mapping types needed at the point of request
+            var mappingConfig = new MapperConfiguration(mc =>
+            {
+                mc.AddProfile(new MappingProfile());
+            });
+
+            IMapper mapper = mappingConfig.CreateMapper();
+            services.AddSingleton(mapper);
+
             services.AddSingleton<ProfileOptionsService, ProfileOptionsService>();
             services.AddTransient<IPieRepository, PieRepository>();
             services.AddTransient<IFeedbackRepository, FeedbackRepository>();
-            services.AddMvc();
+            services.AddMvc()
+                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<AddUserViewModelValidator>()); 
+                //FluentValidation and validators registration (transient by default)
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

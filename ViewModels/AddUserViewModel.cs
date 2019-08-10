@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -19,15 +20,15 @@ namespace Pieshop.ViewModels
 
         [Required]
         [Display(Name = "First Name")]
-        public string Firstname { get; set; }
+        public string FirstName { get; set; }
 
         [Required]
         [Display(Name = "Last Name")]
-        public string Lastname { get; set; }
+        public string LastName { get; set; }
 
         [Required]
         [Display(Name = "Date Of Birth")]
-        public DateTime Birthdate { get; set; }
+        public DateTime BirthDate { get; set; }
         public string City { get; set; }
 
         [Required]
@@ -36,7 +37,7 @@ namespace Pieshop.ViewModels
 
         [Required]
         [Display(Name = "Roles")]
-        public List<string> Roles { get; set; }
+        public List<SelectListItem> Roles { get; set; }
 
         [Required]
         [DataType(DataType.Password)]

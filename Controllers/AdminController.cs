@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Pieshop.Models;
 using Pieshop.ViewModels;
 using System.Collections.Generic;
@@ -17,11 +19,6 @@ namespace Pieshop.Controllers
         public AdminController(UserManager<ApplicationUser> userManager)
         {
             _userManager = userManager;
-        }
-
-        public IActionResult Index()
-        {
-            return View();
         }
 
         public IActionResult UserManagement()
@@ -48,10 +45,10 @@ namespace Pieshop.Controllers
             {
                 UserName = vm.UserName,
                 Email = vm.Email,
-                FirstName = vm.Firstname,
-                LastName = vm.Lastname,
-                BirthDate = vm.Birthdate,
-                City = vm.City, 
+                FirstName = vm.FirstName,
+                LastName = vm.LastName,
+                BirthDate = vm.BirthDate,
+                City = vm.City,
                 Country = vm.Country
             };
 
@@ -60,9 +57,9 @@ namespace Pieshop.Controllers
             {
                 if (vm.Roles.Any())
                 {
-                    foreach (var role in vm.Roles)
+                    foreach (var role in vm.Roles.Where(x => x.Selected))
                     {
-                        await _userManager.AddToRoleAsync(user, role);
+                        await _userManager.AddToRoleAsync(user, role.Text);
                     }
                 }
 
@@ -80,6 +77,7 @@ namespace Pieshop.Controllers
         [HttpGet]
         public async Task<IActionResult> EditUser(string id)
         {
+           
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
             {
@@ -90,38 +88,47 @@ namespace Pieshop.Controllers
             var vm = new EditUserViewModel
             {
                 Id = user.Id,
-                Birthdate = user.BirthDate,
+                BirthDate = user.BirthDate,
                 City = user.City,
                 Country = user.Country,
                 Email = user.Email,
-                Firstname = user.FirstName,
-                Lastname = user.LastName,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
                 UserName = user.UserName,
-                Roles = new List<string>()
+                Roles = new List<SelectListItem>()
             };
 
-            vm.Roles = (await _userManager.GetRolesAsync(user)).ToList();
-
+            //fetch roles and add to view model
+            var roles = await _userManager.GetRolesAsync(user);
+            foreach(var role in roles)
+            {
+                vm.Roles.Add(new SelectListItem { Selected = true, Text = role, Value = role });
+            }
             return View(vm);
         }
 
         [HttpPost]
         public async Task<IActionResult> EditUser(EditUserViewModel vm)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(vm);
+            }
             var user = await _userManager.FindByIdAsync(vm.Id);
             if (user == null)
             {
                 return RedirectToAction("UserManagement", _userManager.Users);
             }
 
+            //set properties which are specific to the vm to the user
             user.UserName = vm.UserName;
             user.Email = vm.Email;
-            user.BirthDate = vm.Birthdate;
+            user.BirthDate = vm.BirthDate;
             user.City = vm.City;
             user.Country = vm.Country;
             user.Email = vm.Email;
-            user.FirstName = vm.Firstname;
-            user.LastName = vm.Lastname;
+            user.FirstName = vm.FirstName;
+            user.LastName = vm.LastName;
             user.UserName = vm.UserName;
            
             var result = await _userManager.UpdateAsync(user);
@@ -134,15 +141,15 @@ namespace Pieshop.Controllers
                 //check roles
                 var savedUserRoles = await _userManager.GetRolesAsync(user);
 
-                //is user in any savedRoles which are not in the vm list of roles?
-                var rolesToRemove = savedUserRoles.Where(p => !vm.Roles.Contains(p)).ToList();
+                //is user in any savedRoles which are not in the vm selected = true list of roles?
+                var rolesToRemove = savedUserRoles.Where(p => !vm.Roles.Where(x => x.Selected).Select(x => x.Value).Contains(p)).ToList();
                 if(rolesToRemove.Any())
                 {
                     roleRemoveResult = await _userManager.RemoveFromRolesAsync(user, rolesToRemove);
                     //TODO - log any errors
                 }
                 //if user has new roles which he is not currently in then add them
-                var rolesToAdd = vm.Roles.Where(p => !savedUserRoles.Contains(p)).ToList();
+                var rolesToAdd = vm.Roles.Where(x => x.Selected).Select(x => x.Value).Where(p => !savedUserRoles.Contains(p)).ToList();
                 if (rolesToAdd.Any())
                 {
                     roleAddResult = await _userManager.AddToRolesAsync(user, rolesToAdd);

@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Pieshop.Models;
+using System;
 
 namespace Pieshop
 {
@@ -11,7 +13,9 @@ namespace Pieshop
         public static void Main(string[] args)
         {
             var host = CreateWebHostBuilder(args).Build();
-            using(var scope = host.Services.CreateScope())
+            ILogger logger = host.Services.GetService<ILogger<Program>>();
+
+            using (var scope = host.Services.CreateScope())
             {
                 try
                 {
@@ -25,11 +29,12 @@ namespace Pieshop
                     //if db initialization setup has succeeded we run the app
                     host.Run();
                 }
-                catch
+                catch(Exception ex)
                 {
-                    //TODO - log any exceptions, app wont start if failure happens here
 
-                     
+                    //log any exceptions, app wont start if failure happens here
+                    logger.LogCritical(ex, "Starting web host failed.");
+
                 }
             }
 
@@ -38,5 +43,7 @@ namespace Pieshop
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>();
+                
+                
     }
 }

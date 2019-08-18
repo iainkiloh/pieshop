@@ -1,4 +1,6 @@
-﻿namespace Pieshop.Models
+﻿using System.Collections.Generic;
+
+namespace Pieshop.Models
 {
     public class Pie
     {
@@ -11,5 +13,7 @@
         public string ImageThumbnailUrl { get; set; }
         public bool IsPieOfTheWeek { get; set; }
         public bool IsInStock { get; set; }
+
+        public virtual List<PieReview> PieReviews { get; set; }
     }
 }

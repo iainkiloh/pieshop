@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Pieshop.FluentValidators;
 using Pieshop.Interfaces;
 using Pieshop.Mapping;
@@ -12,6 +13,7 @@ using Pieshop.Models;
 using Pieshop.Repositories;
 using Pieshop.ViewModels;
 using Pieshop.ViewServices;
+using System;
 using System.Globalization;
 
 namespace Pieshop
@@ -35,11 +37,10 @@ namespace Pieshop
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-
+            //setup EF Core context with SqlServer and the connection string to use
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
                 );
-
 
             // Auto Mapper Configurations
             //not 100% sure about this setup
@@ -54,10 +55,24 @@ namespace Pieshop
 
             services.AddSingleton<ProfileOptionsService, ProfileOptionsService>();
             services.AddTransient<IPieRepository, PieRepository>();
+            services.AddTransient<IPieReviewRepository, PieReviewRepository>();
             services.AddTransient<IFeedbackRepository, FeedbackRepository>();
             services.AddMvc()
                 .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<AddUserViewModelValidator>()); 
                 //FluentValidation and validators registration (transient by default)
+
+            services.AddLogging(options =>
+             {
+                 //clear default providers setup by DefaultWebHostBuilder
+                 options.ClearProviders();
+                 //add desired providers
+                 if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == EnvironmentName.Development)
+                 {
+                     options.AddDebug();
+                 }
+                 options.AddConsole(); //use with care - slow
+             });
+
 
         }
 

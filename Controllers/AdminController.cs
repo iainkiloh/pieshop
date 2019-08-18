@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Logging;
 using Pieshop.Models;
 using Pieshop.ViewModels;
 using System.Collections.Generic;
@@ -15,10 +16,12 @@ namespace Pieshop.Controllers
     public class AdminController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ILogger<AdminController> _logger;
 
-        public AdminController(UserManager<ApplicationUser> userManager)
+        public AdminController(UserManager<ApplicationUser> userManager, ILogger<AdminController> logger)
         {
             _userManager = userManager;
+            _logger = logger;
         }
 
         public IActionResult UserManagement()

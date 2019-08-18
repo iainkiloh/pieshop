@@ -8,6 +8,8 @@ namespace Pieshop.Interfaces
     {
         Task<IEnumerable<Pie>> GetAllPies();
 
+        Task<IEnumerable<Pie>> GetPiesOfTheWeek();
+
         Task<Pie> GetById(int id);
     }
 }

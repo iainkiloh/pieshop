@@ -18,9 +18,19 @@ namespace Pieshop.Repositories
             return await _appDbContext.Pies.ToListAsync();
         }
 
+        public async Task<IEnumerable<Pie>> GetPiesOfTheWeek()
+        {
+            //implement categories of pies later
+                // return _appDbContext.Pies.Include(c => c.Category).Where(p => p.IsPieOfTheWeek);
+                return await _appDbContext.Pies.ToListAsync();  
+        }
+
+
         public async Task<Pie> GetById(int id)
         {
-            return await _appDbContext.Pies.FirstOrDefaultAsync(x => x.Id == id);
+            //get pies with al reviews
+            //TODO - limit reviews 
+            return await _appDbContext.Pies.Include(inc => inc.PieReviews).FirstOrDefaultAsync(x => x.Id == id);
         }
     }
 }

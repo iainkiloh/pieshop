@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Pieshop.Interfaces;
 using Pieshop.Models;
 using System.Threading.Tasks;
@@ -9,10 +10,12 @@ namespace Pieshop.Controllers
     public class FeedbackController : Controller
     {
         private readonly IFeedbackRepository _feedbackRepository;
+        private readonly ILogger<FeedbackController> _logger;
 
-        public FeedbackController(IFeedbackRepository feedbackRepository)
+        public FeedbackController(IFeedbackRepository feedbackRepository, ILogger<FeedbackController> logger)
         {
             _feedbackRepository = feedbackRepository;
+            _logger = logger;
         }
 
         [Authorize]

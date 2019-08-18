@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Pieshop.Models;
 
 namespace Pieshop.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190818205355_PieReviews")]
+    partial class PieReviews
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -313,7 +315,7 @@ namespace Pieshop.Migrations
             modelBuilder.Entity("Pieshop.Models.PieReview", b =>
                 {
                     b.HasOne("Pieshop.Models.Pie", "Pie")
-                        .WithMany("PieReviews")
+                        .WithMany()
                         .HasForeignKey("PieId");
                 });
 #pragma warning restore 612, 618

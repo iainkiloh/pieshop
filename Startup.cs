@@ -2,6 +2,7 @@
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -54,7 +55,10 @@ namespace Pieshop
             services.AddTransient<IPieRepository, PieRepository>();
             services.AddTransient<IPieReviewRepository, PieReviewRepository>();
             services.AddTransient<IFeedbackRepository, FeedbackRepository>();
-            services.AddMvc()
+            services.AddMvc(options => {
+                options.Filters.Add(
+                    new AutoValidateAntiforgeryTokenAttribute());
+                })
                 .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<AddUserViewModelValidator>()); 
                 //FluentValidation and validators registration (transient by default)
 

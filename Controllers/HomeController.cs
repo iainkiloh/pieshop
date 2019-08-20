@@ -21,6 +21,9 @@ namespace Pieshop.Controllers
 
         public async Task<IActionResult> Index()
         {
+   
+            _logger.LogWarning("HOME WARNING *****************************************");
+            
             var pies = await _pieRepository.GetPiesOfTheWeek();
             pies = pies.OrderBy(p => p.Name);
             var vm = new HomeViewModel

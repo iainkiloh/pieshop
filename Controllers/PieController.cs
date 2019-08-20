@@ -67,7 +67,7 @@ namespace Pieshop.Controllers
             }
             catch(Exception e)
             {
-                _logger.LogError(e.Message, "Error attempting to html encode user review");
+                _logger.LogWarning(e.Message, "Error attempting to html encode user review");
             }
 
             return View(new PieDetailViewModel() { Pie = pie });

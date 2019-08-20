@@ -32,16 +32,6 @@ namespace Pieshop.Controllers
             return View(vm);
         }
 
-
-        //public async Task<IActionResult> Details(int id)
-        //{
-        //    var pie = await _pieRepository.GetById(id);
-        //    if(pie == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    return View(pie);
-        //}
-
+       
     }
 }

@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Pieshop.Models;
+using Serilog;
 using System;
+using System.IO;
 
 namespace Pieshop
 {
@@ -12,9 +14,10 @@ namespace Pieshop
     {
         public static void Main(string[] args)
         {
-            var host = CreateWebHostBuilder(args).Build();
-            ILogger logger = host.Services.GetService<ILogger<Program>>();
 
+            ConfigureLogging();
+           
+            var host = CreateWebHostBuilder(args).Build();
             using (var scope = host.Services.CreateScope())
             {
                 try
@@ -31,19 +34,52 @@ namespace Pieshop
                 }
                 catch(Exception ex)
                 {
-
                     //log any exceptions, app wont start if failure happens here
-                    logger.LogCritical(ex, "Starting web host failed.");
-
+                    Log.Fatal(ex, "Starting web host failed.");
+                } 
+                finally
+                {
+                    Log.CloseAndFlush();
                 }
+            
             }
 
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>();
-                
-                
-    }
+                .UseStartup<Startup>()
+                .UseSerilog();
+
+                //REPLACED BELOW With Serilog configuration in appsettings.json files
+                //.ConfigureLogging(options =>
+                //{
+                //    //clear default providers setup by DefaultWebHostBuilder
+                //    options.ClearProviders();
+                //    //add desired providers
+                //    if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == EnvironmentName.Development)
+                //    {
+                //        options.AddDebug();
+                //        options.AddConsole();
+                //    }
+                //    options.AddConsole(); //use with care - slow
+                //});
+
+        private static void ConfigureLogging()
+        {
+            //get configuration for appsettings.json environment
+            var config = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json")
+            .AddJsonFile($"appsettings.{ Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") }.json", optional: true)
+            .Build();
+
+            //apply serilog configuration from file
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(config)
+                .CreateLogger();
+
+        }
+
+}
 }

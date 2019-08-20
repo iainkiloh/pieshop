@@ -5,15 +5,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Pieshop.FluentValidators;
 using Pieshop.Interfaces;
 using Pieshop.Mapping;
 using Pieshop.Models;
 using Pieshop.Repositories;
-using Pieshop.ViewModels;
 using Pieshop.ViewServices;
-using System;
 using System.Globalization;
 
 namespace Pieshop
@@ -60,19 +57,6 @@ namespace Pieshop
             services.AddMvc()
                 .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<AddUserViewModelValidator>()); 
                 //FluentValidation and validators registration (transient by default)
-
-            services.AddLogging(options =>
-             {
-                 //clear default providers setup by DefaultWebHostBuilder
-                 options.ClearProviders();
-                 //add desired providers
-                 if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == EnvironmentName.Development)
-                 {
-                     options.AddDebug();
-                 }
-                 options.AddConsole(); //use with care - slow
-             });
-
 
         }
 

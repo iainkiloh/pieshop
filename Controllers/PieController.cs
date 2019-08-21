@@ -4,7 +4,6 @@ using Pieshop.Interfaces;
 using Pieshop.Models;
 using Pieshop.ViewModels;
 using System;
-using System.Linq;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 
@@ -26,19 +25,7 @@ namespace Pieshop.Controllers
             _logger = logger;
         }
 
-        public async Task<IActionResult> Index()
-        {
-            var pies = await _pieRepository.GetAllPies();
-            pies = pies.OrderBy(p => p.Name);
-            var vm = new HomeViewModel
-            {
-                Title = "Pies Overview",
-                Pies = pies.ToList()
-            };
-
-            return View(vm);
-        }
-
+        [ResponseCache(Duration = 120, VaryByHeader = "User-Agent", Location = ResponseCacheLocation.Client)]
         [Route("[controller]/Details/{id}")]
         public async Task<IActionResult> Details(int id)
         {
@@ -76,3 +63,19 @@ namespace Pieshop.Controllers
 
     }
 }
+
+
+
+
+//public async Task<IActionResult> Index()
+//{
+//    var pies = await _pieRepository.GetAllPies();
+//    pies = pies.OrderBy(p => p.Name);
+//    var vm = new HomeViewModel
+//    {
+//        Title = "Pies Overview",
+//        Pies = pies.ToList()
+//    };
+
+//    return View(vm);
+//}

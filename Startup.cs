@@ -14,6 +14,7 @@ using Pieshop.Repositories;
 using Pieshop.ViewServices;
 using System.Globalization;
 
+
 namespace Pieshop
 {
     public class Startup
@@ -40,7 +41,7 @@ namespace Pieshop
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
                 );
 
-            // Auto Mapper Configurations
+            //Auto Mapper Configurations
             //not 100% sure about this setup
             //IMHO mapping should be scoped per request and only for the mapping types needed at the point of request
             var mappingConfig = new MapperConfiguration(mc =>
@@ -55,6 +56,15 @@ namespace Pieshop
             services.AddTransient<IPieRepository, PieRepository>();
             services.AddTransient<IPieReviewRepository, PieReviewRepository>();
             services.AddTransient<IFeedbackRepository, FeedbackRepository>();
+
+            services.AddDistributedRedisCache(options =>
+            {
+                options.InstanceName = Configuration["DistributedCaching:InstanceName"]; 
+                options.Configuration = Configuration["DistributedCaching:Configuration"]; 
+            });
+
+            services.AddResponseCaching();
+
             services.AddMvc(options => {
                 options.Filters.Add(
                     new AutoValidateAntiforgeryTokenAttribute());

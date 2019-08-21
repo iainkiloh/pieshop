@@ -1,43 +1,36 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Distributed;
+﻿using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
+using Pieshop.Interfaces;
 using System;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Pieshop.Controllers
+namespace Pieshop.ControllerServices
 {
-    public abstract class ControllerBase : Controller
+
+    public class DistributedCacheService : IDistributedCacheService
     {
         protected readonly IDistributedCache _distributedCache;
 
-        public ControllerBase(IDistributedCache distributedCache)
+        public DistributedCacheService(IDistributedCache distributedCache)
         {
             _distributedCache = distributedCache;
         }
 
-        /// <summary>
-        /// Base method for controllers to fetch data from distibuted redis cache
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="key"></param>
-        /// <param name="timeSpan"></param>
-        /// <param name="operation"></param>
-        /// <returns></returns>
-        protected virtual async Task<T> LoadFromDistributedCache<T>(string key, TimeSpan timeSpan, Func<Task<T>> operation)
+        public async Task<T> LoadFromDistributedCache<T>(string key, TimeSpan expiration, Func<Task<T>> operation)
         {
             var cachedData = await _distributedCache.GetAsync(key);
             if (cachedData == null)
             {
-                var dbData = await operation();
-                var serializedData = JsonConvert.SerializeObject(dbData);
+                var dataToCache = await operation();
+                var serializedData = JsonConvert.SerializeObject(dataToCache);
                 byte[] encodedByteArray = Encoding.UTF8.GetBytes(serializedData);
                 var cacheEntryOptions = new DistributedCacheEntryOptions
                 {
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(20)
+                    AbsoluteExpirationRelativeToNow = expiration
                 };
                 await _distributedCache.SetAsync(key, encodedByteArray, cacheEntryOptions);
-                return dbData;
+                return dataToCache;
             }
             else
             {
@@ -46,9 +39,7 @@ namespace Pieshop.Controllers
                 var deserializedData = JsonConvert.DeserializeObject<T>(serializedData);
                 return deserializedData;
             }
-
         }
-
-
+ 
     }
 }

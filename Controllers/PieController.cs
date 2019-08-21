@@ -21,11 +21,10 @@ namespace Pieshop.Controllers
         {
             _pieRepository = pieRepository;
             _pieReviewRepository = pieReviewRepository;
-            _htmlEncoder = htmlEncoder; // enocde all html input to protect against XSS attacks
+            _htmlEncoder = htmlEncoder; // enocde html input to protect against XSS attacks
             _logger = logger;
         }
 
-        [ResponseCache(Duration = 120, VaryByHeader = "User-Agent", Location = ResponseCacheLocation.Client)]
         [Route("[controller]/Details/{id}")]
         public async Task<IActionResult> Details(int id)
         {

@@ -3,9 +3,11 @@ using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Pieshop.ControllerServices;
 using Pieshop.FluentValidators;
 using Pieshop.Interfaces;
 using Pieshop.Mapping;
@@ -13,7 +15,7 @@ using Pieshop.Models;
 using Pieshop.Repositories;
 using Pieshop.ViewServices;
 using System.Globalization;
-
+using System.Linq;
 
 namespace Pieshop
 {
@@ -63,15 +65,27 @@ namespace Pieshop
                 options.Configuration = Configuration["DistributedCaching:Configuration"]; 
             });
 
-            services.AddResponseCaching();
+            services.AddResponseCompression(options =>
+            {
+                options.EnableForHttps = true;
+                options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] { "imagejpeg" });
+            });
 
-            services.AddMvc(options => {
+            services.Configure<GzipCompressionProviderOptions>(
+                options => options.Level = System.IO.Compression.CompressionLevel.Optimal);
+
+            services.AddResponseCaching(); //when used, the AntiForgerycheck needs to be ignored. Good for static public GET ONLY views
+
+            services.AddTransient<IDistributedCacheService, DistributedCacheService>();
+
+            services.AddMvc(options =>
+            {
                 options.Filters.Add(
-                    new AutoValidateAntiforgeryTokenAttribute());
-                })
-                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<AddUserViewModelValidator>()); 
-                //FluentValidation and validators registration (transient by default)
+                    new AutoValidateAntiforgeryTokenAttribute()); //anti-forgery check on every form post in app (NOTE complicates ResponseCaching)
+            }).AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<AddUserViewModelValidator>());
+            //FluentValidation and validators registration (transient by default)
 
+       
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -85,6 +99,8 @@ namespace Pieshop
             app.UseStatusCodePages();
             app.UseStaticFiles();
             app.UseAuthentication();
+            app.UseResponseCompression();
+            app.UseResponseCaching();
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
